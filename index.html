@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Imran Production TV — Online CRM</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;color:#17202a}
+header{background:#111827;color:#fff;padding:18px;text-align:center}header h1{margin:0;font-size:23px}header p{margin:5px 0 0;color:#cbd5e1}
+nav{display:flex;gap:8px;overflow:auto;padding:10px;background:#fff;position:sticky;top:0;z-index:2}
+button{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;background:#111827;color:white}button.active{background:#2563eb}
+main{max-width:1100px;margin:auto;padding:15px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px #0001}.num{font-size:28px;font-weight:bold;margin-top:8px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;margin:5px 0 10px;font-size:15px}
+label{font-size:13px;font-weight:bold}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+table{width:100%;border-collapse:collapse;background:white;margin-top:12px}th,td{padding:10px;border-bottom:1px solid #eee;text-align:right}th{background:#f1f5f9}
+.hidden{display:none}.danger{background:#dc2626}.small{padding:6px 9px;font-size:12px}
+.notice{background:#eff6ff;padding:12px;border-radius:10px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<header><h1>Imran Production TV — Online CRM</h1><p>Customers • Follow-up • Projects • Payments</p></header>
+<nav>
+<button onclick="show('dashboard')" id="b-dashboard">Dashboard</button>
+<button onclick="show('customers')" id="b-customers">Customers</button>
+<button onclick="show('projects')" id="b-projects">Projects</button>
+<button onclick="show('payments')" id="b-payments">Payments</button>
+<button onclick="show('followup')" id="b-followup">Follow-up</button>
+</nav>
+<main>
+<section id="dashboard">
+<div class="grid">
+<div class="card">کل Customers<div class="num" id="dc">0</div></div>
+<div class="card">Running Projects<div class="num" id="dp">0</div></div>
+<div class="card">Pending Payments<div class="num" id="dpp">Rs. 0</div></div>
+<div class="card">Follow-ups<div class="num" id="df">0</div></div>
+</div>
+<div class="card" style="margin-top:14px"><h3>CRM استعمال</h3><p>اپنے موبائل یا کمپیوٹر پر customer، project، payment اور follow-up کا ریکارڈ محفوظ کریں۔ ڈیٹا اسی browser میں محفوظ ہوتا ہے۔</p></div>
+</section>
+
+<section id="customers" class="hidden">
+<div class="card"><h2>Customer Add کریں</h2>
+<form id="cf"><div class="row">
+<div><label>نام</label><input id="cn" required></div><div><label>فون</label><input id="cp"></div>
+<div><label>Email</label><input id="ce" type="email"></div><div><label>کام/Service</label><input id="cs"></div>
+</div><button>Add Customer</button></form></div>
+<div class="card" style="margin-top:12px"><h2>Customer List</h2><table><thead><tr><th>نام</th><th>فون</th><th>Service</th><th></th></tr></thead><tbody id="ct"></tbody></table></div>
+</section>
+
+<section id="projects" class="hidden">
+<div class="card"><h2>Project Add کریں</h2><form id="pf"><div class="row">
+<div><label>Customer</label><input id="pn" required></div><div><label>Project</label><input id="pj" required></div>
+<div><label>Status</label><select id="ps"><option>New</option><option>In Progress</option><option>Completed</option></select></div>
+</div><button>Add Project</button></form></div>
+<div class="card" style="margin-top:12px"><h2>Projects</h2><table><thead><tr><th>Customer</th><th>Project</th><th>Status</th><th></th></tr></thead><tbody id="pt"></tbody></table></div>
+</section>
+
+<section id="payments" class="hidden">
+<div class="card"><h2>Payment Add کریں</h2><form id="payf"><div class="row">
+<div><label>Customer</label><input id="payn" required></div><div><label>Amount (Rs.)</label><input id="paya" type="number" required></div>
+<div><label>Status</label><select id="payst"><option>Pending</option><option>Paid</option><option>Partial</option></select></div>
+</div><button>Add Payment</button></form></div>
+<div class="card" style="margin-top:12px"><h2>Payments</h2><table><thead><tr><th>Customer</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="payt"></tbody></table></div>
+</section>
+
+<section id="followup" class="hidden">
+<div class="card"><h2>Follow-up Add کریں</h2><form id="ff"><div class="row">
+<div><label>Customer</label><input id="fn" required></div><div><label>Date</label><input id="fd" type="date" required></div>
+<div><label>Purpose</label><input id="fx"></div><div><label>Status</label><select id="fst"><option>Pending</option><option>Done</option></select></div>
+</div><button>Add Follow-up</button></form></div>
+<div class="card" style="margin-top:12px"><h2>Follow-ups</h2><table><thead><tr><th>Customer</th><th>Date</th><th>Purpose</th><th>Status</th><th></th></tr></thead><tbody id="ft"></tbody></table></div>
+</section>
+</main>
+<script>
+const key="iptvcrm_v1"; let db=JSON.parse(localStorage.getItem(key)||'{"c":[],"p":[],"pay":[],"f":[]}');
+function save(){localStorage.setItem(key,JSON.stringify(db));render()}
+function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function del(a,i){db[a].splice(i,1);save()}
+function show(s){document.querySelectorAll('main>section').forEach(x=>x.classList.add('hidden'));document.getElementById(s).classList.remove('hidden');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById('b-'+s).classList.add('active')}
+function render(){
+dc.textContent=db.c.length; dp.textContent=db.p.filter(x=>x.s==='In Progress').length;
+dpp.textContent='Rs. '+db.pay.filter(x=>x.s!=='Paid').reduce((a,x)=>a+Number(x.a||0),0).toLocaleString();
+df.textContent=db.f.filter(x=>x.s==='Pending').length;
+ct.innerHTML=db.c.map((x,i)=>`<tr><td>${esc(x.n)}</td><td>${esc(x.p)}</td><td>${esc(x.s)}</td><td><button class="danger small" onclick="del('c',${i})">حذف</button></td></tr>`).join('');
+pt.innerHTML=db.p.map((x,i)=>`<tr><td>${esc(x.n)}</td><td>${esc(x.j)}</td><td>${esc(x.s)}</td><td><button class="danger small" onclick="del('p',${i})">حذف</button></td></tr>`).join('');
+payt.innerHTML=db.pay.map((x,i)=>`<tr><td>${esc(x.n)}</td><td>Rs. ${Number(x.a).toLocaleString()}</td><td>${esc(x.s)}</td><td><button class="danger small" onclick="del('pay',${i})">حذف</button></td></tr>`).join('');
+ft.innerHTML=db.f.map((x,i)=>`<tr><td>${esc(x.n)}</td><td>${esc(x.d)}</td><td>${esc(x.x)}</td><td>${esc(x.s)}</td><td><button class="danger small" onclick="del('f',${i})">حذف</button></td></tr>`).join('');
+}
+cf.onsubmit=e=>{e.preventDefault();db.c.push({n:cn.value,p:cp.value,e:ce.value,s:cs.value});e.target.reset();save()}
+pf.onsubmit=e=>{e.preventDefault();db.p.push({n:pn.value,j:pj.value,s:ps.value});e.target.reset();save()}
+payf.onsubmit=e=>{e.preventDefault();db.pay.push({n:payn.value,a:paya.value,s:payst.value});e.target.reset();save()}
+ff.onsubmit=e=>{e.preventDefault();db.f.push({n:fn.value,d:fd.value,x:fx.value,s:fst.value});e.target.reset();save()}
+render();show('dashboard');
+</script>
+</body></html>
